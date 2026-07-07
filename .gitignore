@@ -1,12 +1,43 @@
-# IntelliJ
+# ==========================
+# IntelliJ IDEA
+# ==========================
 .idea/
 *.iml
 
-# Java
+# ==========================
+# Java Build Output
+# ==========================
 out/
 target/
 build/
 
-# OS
+# Compiled Java files
+*.class
+*.jar
+*.war
+*.ear
+
+# ==========================
+# Logs
+# ==========================
+*.log
+
+# ==========================
+# Operating System Files
+# ==========================
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+# ==========================
+# VS Code (optional)
+# ==========================
+.vscode/
+
+# ==========================
+# Maven Wrapper (Optional)
+# Uncomment if you don't use Maven Wrapper
+# ==========================
+# .mvn/
+# mvnw
+# mvnw.cmd
