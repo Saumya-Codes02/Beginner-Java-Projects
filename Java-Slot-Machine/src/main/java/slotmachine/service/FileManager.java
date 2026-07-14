@@ -1,52 +1,62 @@
 package slotmachine.service;
 
-import slotmachine.model.Player;
+import slotmachine.model.GameState;
 
 import java.io.*;
 
 public class FileManager {
 
-    private static final String SAVE_FILE = "save/player.dat";
-    private static final String LOG_FILE = "save/logs.txt";
+    private static final String SAVE_DIRECTORY = "save";
+    private static final String SAVE_FILE = SAVE_DIRECTORY + "/game.dat";
+    private static final String LOG_FILE = SAVE_DIRECTORY + "/logs.txt";
 
-    public void savePlayer(Player player) {
+    public FileManager() {
 
-        try (BufferedWriter writer =
-                     new BufferedWriter(new FileWriter(SAVE_FILE))) {
+        createDirectory();
 
-            writer.write(player.getName());
-            writer.newLine();
+    }
 
-            writer.write(String.valueOf(player.getBalance()));
+    private void createDirectory() {
 
-        } catch (IOException e) {
+        File directory = new File(SAVE_DIRECTORY);
 
-            System.out.println("Unable to save game.");
+        if (!directory.exists()) {
+
+            directory.mkdirs();
 
         }
 
     }
 
-    public Player loadPlayer() {
+    public void saveGame(GameState state) throws IOException {
+
+        try (ObjectOutputStream output =
+                     new ObjectOutputStream(
+                             new FileOutputStream(SAVE_FILE))) {
+
+            output.writeObject(state);
+
+        }
+
+    }
+
+    public GameState loadGame()
+            throws IOException,
+            ClassNotFoundException {
 
         File file = new File(SAVE_FILE);
 
         if (!file.exists()) {
+
             return null;
+
         }
 
-        try (BufferedReader reader =
-                     new BufferedReader(new FileReader(file))) {
+        try (ObjectInputStream input =
+                     new ObjectInputStream(
+                             new FileInputStream(file))) {
 
-            String name = reader.readLine();
-
-            int balance = Integer.parseInt(reader.readLine());
-
-            return new Player(name, balance);
-
-        } catch (Exception e) {
-
-            return null;
+            return (GameState) input.readObject();
 
         }
 
@@ -55,15 +65,23 @@ public class FileManager {
     public void writeLog(String message) {
 
         try (BufferedWriter writer =
-                     new BufferedWriter(new FileWriter(LOG_FILE, true))) {
+                     new BufferedWriter(
+                             new FileWriter(LOG_FILE, true))) {
 
             writer.write(message);
-
+            writer.newLine();
+            writer.write("---------------------------------------");
             writer.newLine();
 
         } catch (IOException ignored) {
 
         }
+
+    }
+
+    public boolean saveExists() {
+
+        return new File(SAVE_FILE).exists();
 
     }
 

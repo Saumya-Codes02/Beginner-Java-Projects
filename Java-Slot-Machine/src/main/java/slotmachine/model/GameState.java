@@ -4,10 +4,14 @@ import java.io.Serializable;
 
 public class GameState implements Serializable {
 
-    private Player player;
-    private Statistics statistics;
+    private static final long serialVersionUID = 1L;
 
-    public GameState(Player player, Statistics statistics) {
+    private final Player player;
+    private final Statistics statistics;
+
+    public GameState(Player player,
+                     Statistics statistics) {
+
         this.player = player;
         this.statistics = statistics;
     }

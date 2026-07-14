@@ -1,121 +1,297 @@
 package slotmachine.service;
 
-import slotmachine.model.Player;
-import slotmachine.model.Statistics;
-import slotmachine.model.Symbol;
-import slotmachine.ui.ConsoleUI;
+import  slotmachine.model.GameResult;
+import  slotmachine.model.GameState;
+import  slotmachine.model.Player;
+import  slotmachine.model.Statistics;
+import  slotmachine.ui.ConsoleUI;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Game {
 
-    private final Scanner scanner = new Scanner(System.in);
+    private static final int STARTING_BALANCE = 100;
 
-    private final SlotMachine slotMachine = new SlotMachine();
-    private final ConsoleUI ui = new ConsoleUI();
-    private final Statistics statistics = new Statistics();
+    private final Scanner scanner;
+    private final ConsoleUI ui;
+    private final SlotMachine slotMachine;
+    private final FileManager fileManager;
 
     private Player player;
+    private Statistics statistics;
+
+    public Game() {
+
+        scanner = new Scanner(System.in);
+        ui = new ConsoleUI();
+        slotMachine = new SlotMachine();
+        fileManager = new FileManager();
+
+    }
 
     public void start() {
 
         ui.showWelcome();
 
-        System.out.print("Enter your name: ");
-        String name = scanner.nextLine();
-
-        player = new Player(name, 100);
+        initializePlayer();
 
         boolean running = true;
 
-        while (running && player.getBalance() > 0) {
+        while (running) {
 
             ui.showBalance(player);
 
-            int bet = getBet();
+            ui.showMenu();
 
-            player.withdraw(bet);
+            int choice = readInt("Enter choice : ");
 
-            spinAnimation();
+            switch (choice) {
 
-            Symbol[] row = slotMachine.spin();
+                case 1 -> playGame();
 
-            ui.printRow(row);
+                case 2 -> depositMoney();
 
-            int payout = slotMachine.calculatePayout(row, bet);
+                case 3 -> System.out.println(statistics);
 
-            if (payout > 0) {
+                case 4 -> saveGame();
 
-                player.addWinnings(payout);
+                case 5 -> {
 
-                statistics.recordWin(bet, payout);
+                    saveGame();
 
-                ui.showWin(payout);
+                    running = false;
 
-            } else {
+                }
 
-                statistics.recordLoss(bet);
+                default ->
 
-                ui.showLoss(bet);
+                        ui.showError("Invalid Choice.");
 
             }
 
-            running = playAgain();
-        }
+            if (player.getBalance() <= 0) {
 
-        statistics.display();
+                ui.showError("You have no money left.");
+
+                running = false;
+
+            }
+
+        }
 
         ui.goodbye(player);
 
         scanner.close();
+
+    }
+
+    private void initializePlayer() {
+
+        try {
+
+            if (fileManager.saveExists()) {
+
+                System.out.print("Load previous game? (Y/N): ");
+
+                String answer = scanner.nextLine().trim().toUpperCase();
+
+                if (answer.equals("Y")) {
+
+                    GameState state = fileManager.loadGame();
+
+                    if (state != null) {
+
+                        player = state.getPlayer();
+
+                        statistics = state.getStatistics();
+
+                        ui.showMessage("Game Loaded Successfully.");
+
+                        return;
+
+                    }
+
+                }
+
+            }
+
+        } catch (Exception e) {
+
+            ui.showError("Unable to load saved game.");
+
+        }
+
+        System.out.print("Enter Player Name : ");
+
+        String name = scanner.nextLine();
+
+        if (name.isBlank()) {
+
+            name = "Player";
+
+        }
+
+        player = new Player(name, STARTING_BALANCE);
+
+        statistics = new Statistics();
+
+    }
+
+    private void playGame() {
+
+        if (player.getBalance() <= 0) {
+
+            ui.showError("Insufficient Balance.");
+
+            return;
+
+        }
+
+        int bet = getBet();
+
+        if (bet == -1) {
+
+            return;
+
+        }
+
+        try {
+
+            player.deductBet(bet);
+
+        } catch (IllegalArgumentException e) {
+
+            ui.showError(e.getMessage());
+
+            return;
+
+        }
+
+        spinAnimation();
+
+        GameResult result = slotMachine.playRound(bet);
+
+        if (result.isWin()) {
+
+            player.addWinnings(result.getPayout());
+
+            statistics.recordWin(bet, result.getPayout());
+
+        } else {
+
+            statistics.recordLoss(bet);
+
+        }
+
+        ui.displayResult(result);
+
+        fileManager.writeLog(result.toString());
+
     }
 
     private int getBet() {
 
         while (true) {
 
-            System.out.print("Enter bet amount: ");
-
-            int bet = scanner.nextInt();
-
-            scanner.nextLine();
+            int bet = readInt("Enter Bet Amount : ");
 
             if (bet <= 0) {
 
-                System.out.println("Bet must be greater than zero.");
+                ui.showError("Bet must be greater than zero.");
 
                 continue;
+
             }
 
-            if (bet > player.getBalance()) {
+            if (!player.canBet(bet)) {
 
-                System.out.println("Insufficient balance.");
+                ui.showError("Insufficient Balance.");
 
                 continue;
+
             }
 
             return bet;
+
         }
+
     }
 
-    private boolean playAgain() {
+    private void depositMoney() {
 
-        System.out.print("\nPlay again? (Y/N): ");
+        int amount = readInt("Deposit Amount : ");
 
-        String answer = scanner.nextLine().trim().toUpperCase();
+        if (amount <= 0) {
 
-        return answer.equals("Y");
+            ui.showError("Invalid Amount.");
+
+            return;
+
+        }
+
+        try {
+
+            player.deposit(amount);
+
+            ui.showMessage("Deposit Successful.");
+
+        } catch (IllegalArgumentException e) {
+
+            ui.showError(e.getMessage());
+
+        }
+
+    }
+    private void saveGame() {
+
+        try {
+
+            GameState state = new GameState(player, statistics);
+
+            fileManager.saveGame(state);
+
+            ui.showMessage("Game Saved Successfully.");
+
+        } catch (IOException e) {
+
+            ui.showError("Failed to save game.");
+
+        }
+
+    }
+
+    private int readInt(String message) {
+
+        while (true) {
+
+            System.out.print(message);
+
+            String input = scanner.nextLine().trim();
+
+            try {
+
+                return Integer.parseInt(input);
+
+            } catch (NumberFormatException e) {
+
+                ui.showError("Please enter a valid number.");
+
+            }
+
+        }
+
     }
 
     private void spinAnimation() {
 
-        System.out.print("\nSpinning");
+        System.out.print("Spinning");
 
         try {
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 5; i++) {
 
-                Thread.sleep(500);
+                Thread.sleep(300);
 
                 System.out.print(".");
 
@@ -127,7 +303,8 @@ public class Game {
 
         }
 
-        System.out.println("\n");
+        System.out.println();
+
     }
 
 }

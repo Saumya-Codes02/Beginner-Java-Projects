@@ -1,15 +1,21 @@
 package slotmachine.model;
 
-public class Statistics {
+import java.io.Serializable;
+
+public class Statistics implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int gamesPlayed;
     private int wins;
     private int losses;
+
     private int totalBet;
     private int totalWon;
+
     private int highestWin;
 
-    public void recordWin(int bet, int payout){
+    public void recordWin(int bet, int payout) {
 
         gamesPlayed++;
         wins++;
@@ -17,11 +23,12 @@ public class Statistics {
         totalBet += bet;
         totalWon += payout;
 
-        if(payout > highestWin)
+        if (payout > highestWin) {
             highestWin = payout;
+        }
     }
 
-    public void recordLoss(int bet){
+    public void recordLoss(int bet) {
 
         gamesPlayed++;
         losses++;
@@ -29,21 +36,60 @@ public class Statistics {
         totalBet += bet;
     }
 
-    public void display(){
+    public int getGamesPlayed() {
+        return gamesPlayed;
+    }
 
-        System.out.println("\n========== STATISTICS ==========");
-        System.out.println("Games Played : " + gamesPlayed);
-        System.out.println("Wins         : " + wins);
-        System.out.println("Losses       : " + losses);
-        System.out.println("Total Bet    : $" + totalBet);
-        System.out.println("Total Won    : $" + totalWon);
-        System.out.println("Highest Win  : $" + highestWin);
+    public int getWins() {
+        return wins;
+    }
 
-        if(gamesPlayed != 0){
-            double winRate = (wins * 100.0) / gamesPlayed;
-            System.out.printf("Win Rate     : %.2f%%\n", winRate);
+    public int getLosses() {
+        return losses;
+    }
+
+    public int getTotalBet() {
+        return totalBet;
+    }
+
+    public int getTotalWon() {
+        return totalWon;
+    }
+
+    public int getHighestWin() {
+        return highestWin;
+    }
+
+    public double getWinRate() {
+
+        if (gamesPlayed == 0) {
+            return 0;
         }
 
-        System.out.println("===============================\n");
+        return (wins * 100.0) / gamesPlayed;
+    }
+
+    @Override
+    public String toString() {
+
+        return """
+                ==============================
+                Games Played : %d
+                Wins         : %d
+                Losses       : %d
+                Total Bet    : $%d
+                Total Won    : $%d
+                Highest Win  : $%d
+                Win Rate     : %.2f%%
+                ==============================
+                """.formatted(
+                gamesPlayed,
+                wins,
+                losses,
+                totalBet,
+                totalWon,
+                highestWin,
+                getWinRate()
+        );
     }
 }

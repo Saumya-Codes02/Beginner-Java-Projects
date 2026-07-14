@@ -1,0 +1,36 @@
+GameResult{row=[🍋, 🍉, 🍉], bet=30, payout=90, jackpot=false}
+---------------------------------------
+GameResult{row=[🍉, 🍉, 🍒], bet=10000, payout=30000, jackpot=false}
+---------------------------------------
+GameResult{row=[🍉, 🍉, 🍒], bet=10000, payout=30000, jackpot=false}
+---------------------------------------
+GameResult{row=[🍒, 🍒, 🍉], bet=10000, payout=20000, jackpot=false}
+---------------------------------------
+GameResult{row=[🍒, 🍒, 🍒], bet=20000, payout=60000, jackpot=false}
+---------------------------------------
+GameResult{row=[🍉, 🍒, 🍒], bet=100000, payout=200000, jackpot=false}
+---------------------------------------
+GameResult{row=[🍋, 🍒, 🍒], bet=200000, payout=400000, jackpot=false}
+---------------------------------------
+GameResult{row=[🔔, 🍉, 🍋], bet=1, payout=0, jackpot=false}
+---------------------------------------
+GameResult{row=[🔔, 🍒, 🔔], bet=200000, payout=1000000, jackpot=false}
+---------------------------------------
+GameResult{row=[🍋, 🍋, 🍒], bet=1200159, payout=4800636, jackpot=false}
+---------------------------------------
+GameResult{row=[🍋, 🔔, 🍉], bet=1, payout=0, jackpot=false}
+---------------------------------------
+GameResult{row=[⭐, 🍒, 🍉], bet=3, payout=0, jackpot=false}
+---------------------------------------
+GameResult{row=[🔔, 🍋, 🍉], bet=9, payout=0, jackpot=false}
+---------------------------------------
+GameResult{row=[🔔, ⭐, 🍉], bet=10, payout=0, jackpot=false}
+---------------------------------------
+GameResult{row=[🍉, 🍋, 🍉], bet=11, payout=33, jackpot=false}
+---------------------------------------
+GameResult{row=[🍒, 🍋, 🍒], bet=123, payout=246, jackpot=false}
+---------------------------------------
+GameResult{row=[🍋, 🍒, 🔔], bet=4800758, payout=0, jackpot=false}
+---------------------------------------
+GameResult{row=[⭐, 🍉, 🍉], bet=50, payout=150, jackpot=false}
+---------------------------------------
